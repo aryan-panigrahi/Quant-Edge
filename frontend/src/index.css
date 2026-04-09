@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-gray-200 font-sans antialiased;
+    margin: 0;
+  }
+  
+  /* Apply tabular numbers for everything in the quant terminal */
+  * {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Brutalist Obsidian Layering */
+  .glass-card {
+    @apply bg-surface border border-outline/50 rounded-none shadow-none;
+  }
+  
+  .glass-card:hover {
+    @apply bg-surfaceLight border-outline;
+  }
+
+  .stat-value {
+    @apply text-3xl font-light tracking-tight text-white;
+  }
+
+  /* Sharp Chips */
+  .badge-green {
+    @apply text-accent border border-accent/40 bg-accent/5 px-2 py-0.5 rounded-none text-xs font-bold tracking-widest uppercase;
+  }
+
+  .badge-red {
+    @apply text-danger border border-danger/40 bg-danger/5 px-2 py-0.5 rounded-none text-xs font-bold tracking-widest uppercase;
+  }
+  
+  .badge-neutral {
+    @apply text-primary border border-primary/40 bg-primary/5 px-2 py-0.5 rounded-none text-xs font-bold tracking-widest uppercase;
+  }
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0e14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a2637;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3c495b;
+}
