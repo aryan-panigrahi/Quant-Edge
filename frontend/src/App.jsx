@@ -6,6 +6,7 @@ export default function App() {
   const [marketData, setMarketData] = useState(null);
   const [stockData, setStockData] = useState(null);
   const [ticker, setTicker] = useState('');
+  const [inputTicker, setInputTicker] = useState('');
   const [loading, setLoading] = useState(false);
   
   // AI State
@@ -74,8 +75,9 @@ export default function App() {
             <span className="text-xs font-mono text-gray-500">TICKER:</span>
             <input 
               type="text" 
-              value={ticker}
-              onChange={(e) => setTicker(e.target.value.toUpperCase())}
+              value={inputTicker}
+              onChange={(e) => setInputTicker(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && setTicker(inputTicker)}
               className="bg-surface border border-outline rounded-none px-3 py-1 w-48 text-white font-mono text-xs focus:outline-none focus:border-primary transition-all uppercase"
               placeholder="e.g. RELIANCE.NS, TSLA"
             />
