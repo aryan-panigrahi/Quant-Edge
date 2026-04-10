@@ -505,6 +505,8 @@ const POPULAR_TICKERS = [
 ];
 
 export default function App() {
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
   const [marketData, setMarketData] = useState(null);
   const [stockData, setStockData] = useState(null);
   const [ticker, setTicker] = useState('');
@@ -522,7 +524,7 @@ export default function App() {
 
   // Fetch Market Pulse
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/market')
+    fetch(`${API_BASE}/api/market`)
       .then(res => res.json())
       .then(data => setMarketData(data))
       .catch(err => console.error("Market fetch error"));
@@ -535,7 +537,7 @@ export default function App() {
       return;
     }
     setLoading(true);
-    fetch(`http://127.0.0.1:8000/api/stock/${ticker}`)
+    fetch(`${API_BASE}/api/stock/${ticker}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && data.signals) setStockData(data);
@@ -548,7 +550,7 @@ export default function App() {
   const generateAI = async () => {
     setAiLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/ai-report/${ticker}`, {
+      const res = await fetch(`${API_BASE}/api/ai-report/${ticker}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ api_key: apiKey }),

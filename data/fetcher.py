@@ -3,7 +3,6 @@ Data fetching layer — all yfinance and news API calls live here.
 Includes caching, error handling, and graceful fallbacks.
 """
 
-import streamlit as st
 import yfinance as yf
 import pandas as pd
 import nltk
@@ -20,7 +19,6 @@ except LookupError:
 
 
 # ── Market Data (Nifty 50 + VIX) ──────────────────────────────
-@st.cache_data(ttl=cfg.CACHE_TTL_MARKET, show_spinner=False)
 def fetch_market_data() -> pd.DataFrame | None:
     """
     Fetch intraday Nifty 50 and India VIX data.
@@ -53,7 +51,6 @@ def fetch_market_data() -> pd.DataFrame | None:
 
 
 # ── Individual Stock Data ──────────────────────────────────────
-@st.cache_data(ttl=60, show_spinner=False)
 def fetch_stock_data(ticker: str, period: str = "5d") -> pd.DataFrame | None:
     """
     Fetch intraday OHLCV data (5m interval) for a single stock.
@@ -81,7 +78,6 @@ def fetch_stock_data(ticker: str, period: str = "5d") -> pd.DataFrame | None:
 
 
 # ── Live Quote (Current Price + Change) ───────────────────────
-@st.cache_data(ttl=30, show_spinner=False)
 def fetch_live_quote(ticker: str) -> dict | None:
     """
     Fetch live quote info (current price, change, volume, etc.).
@@ -113,7 +109,6 @@ def fetch_live_quote(ticker: str) -> dict | None:
 
 
 # ── News Sentiment ─────────────────────────────────────────────
-@st.cache_data(ttl=cfg.CACHE_TTL_NEWS, show_spinner=False)
 def fetch_news_sentiment(ticker: str) -> pd.DataFrame:
     """
     Fetch news from Google News, score sentiment with VADER.
