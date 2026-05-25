@@ -10,10 +10,29 @@ A professional, high-fidelity quantitative financial dashboard built for institu
 
 ## 🏗️ Architecture
 
-The terminal has been completely rebuilt from a monolithic script into a modern, lightning-fast **Headless Architecture**:
+The terminal is designed around a modern, lightning-fast **Headless Architecture**:
 
-1. **The AI Engine (Backend):** Built purely in **Python** using asynchronous **FastAPI**. It handles complex Numpy matrix calculations, Scikit-Learn predictions, and Google Gemini API inferences without blocking the UI.
-2. **The Dashboard (Frontend):** Built in **React (Vite)** utilizing **Tailwind v3 CSS**. It utilizes the "Obsidian Ledger / Quant Terminal v2" design system, ensuring a brutalist, zero-radius, high-data-density aesthetic tailored for professional traders.
+1. **The AI Engine (Backend):** Built in **Python** using asynchronous **FastAPI**. It handles complex Numpy matrix calculations, Scikit-Learn predictions, and Google Gemini API inferences without blocking the UI. Includes recursive sanitization to filter out non-JSON compliant floats (like `NaN` or `Inf`).
+2. **The Dashboard (Frontend):** Built in **React (Vite)** utilizing **Tailwind v3 CSS**. It utilizes the "Obsidian Ledger / Quant Terminal v2" design system, ensuring a brutalist, zero-radius, high-data-density aesthetic tailored for professional traders. Equipped with active null-safe handlers to ensure flawless operation during closed-market hours when live pricing data feeds are empty.
+
+---
+
+## ⚙️ Installation (Restore Environment)
+
+If you are setting up the project on a new laptop or a fresh operating system:
+
+### 1. Install Backend Dependencies
+Ensure you have Python 3.10+ installed. Run the following command at the project root folder:
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Install Frontend Dependencies
+Ensure you have Node.js v18+ installed. Navigate to the frontend directory and install NPM packages:
+```bash
+cd frontend
+npm install
+```
 
 ---
 
@@ -35,9 +54,6 @@ Open a **second** terminal window and boot the React Frontend:
 # Navigate to the frontend directory
 cd frontend
 
-# Install dependencies if you haven't yet
-npm install
-
 # Start the Vite development server
 npm run dev
 ```
@@ -55,6 +71,7 @@ npm run dev
 ### 📊 Quantitative Stock Analysis
 - **High-Performance Charts:** Rendering thousands of data points flawlessly using `Recharts`. Overlays classic `SMA_20` indicators dynamically on historical data.
 - **Confluence Verdict:** A real-time engine calculating the combined strength of `SMA`, `EMA`, `RSI`, `MACD`, and `Bollinger Bands` to trigger instantaneous Buy/Sell/Wait probabilities.
+- **Graceful Off-Hours Fallback:** Automatically replaces missing telemetry fields (price, high, low, open, volume) with elegant place-holding metrics (`—`) rather than crashing when markets are closed or stock feeds are empty.
 
 ### 🤖 Generative AI Intelligence (Gemini)
 - Plugs directly into the Google Gemini LLM API (requires a free API key during usage).
