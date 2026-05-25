@@ -4,6 +4,8 @@ from pydantic import BaseModel
 import pandas as pd
 import json
 import warnings
+import math
+import numpy as np
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # Local modules
@@ -12,6 +14,25 @@ from data.fetcher import fetch_market_data, fetch_stock_data, fetch_live_quote, 
 from analysis.technical import add_all_indicators, get_signal_summary
 from analysis.ml_forecaster import generate_forecast
 from analysis.ai_analyst import generate_ai_report
+
+def sanitize(obj):
+    if isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize(v) for v in obj]
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        val = float(obj)
+        return None if math.isnan(val) or math.isinf(val) else val
+    if isinstance(obj, float):
+        return None if math.isnan(obj) or math.isinf(obj) else obj
+    if hasattr(obj, 'item'):
+        try:
+            return sanitize(obj.item())
+        except Exception:
+            pass
+    return obj
 
 app = FastAPI(title="NSE Precision Engine API", version="2.0.0")
 
@@ -57,7 +78,7 @@ def get_market_pulse():
         # Prepare chart data (limit to 100 points for frontend perf)
         chart_data = [{"time": str(idx.time()), "value": val} for idx, val in nifty_series.tail(100).items()]
 
-        return {
+        return sanitize({
             "nifty_price": float(nifty_price),
             "nifty_change": float(nifty_price - prev_nifty),
             "nifty_pct": float(((nifty_price - prev_nifty) / prev_nifty) * 100),
@@ -65,7 +86,7 @@ def get_market_pulse():
             "trend": "UP" if uptrend else "DOWN",
             "mood": mood,
             "chart": chart_data
-        }
+        })
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -90,21 +111,13 @@ def get_stock_analysis(ticker: str):
     news_df = fetch_news_sentiment(ticker.upper())
     news_list = json.loads(news_df.to_json(orient='records')) if not news_df.empty else []
 
-    import numpy as np
-    def sanitize(obj):
-        if isinstance(obj, dict): return {k: sanitize(v) for k, v in obj.items()}
-        if isinstance(obj, list): return [sanitize(v) for v in obj]
-        if isinstance(obj, np.integer): return int(obj)
-        if hasattr(obj, 'item'): return obj.item()
-        return obj
-
-    return {
+    return sanitize({
         "ticker": ticker.upper(),
-        "live": sanitize(quote),
-        "signals": sanitize(signal_info),
+        "live": quote,
+        "signals": signal_info,
         "chart": chart_points,
-        "news": sanitize(news_list)
-    }
+        "news": news_list
+    })
 
 @app.get("/api/predict/{ticker}")
 def get_stock_prediction(ticker: str):
@@ -126,11 +139,11 @@ def get_stock_prediction(ticker: str):
             "predicted_price": float(row['Predicted_Close'])
         })
         
-    return {
+    return sanitize({
         "accuracy": accuracy,
         "forecast": predictions,
         "std_dev": float(df['Close'].tail(20).std())
-    }
+    })
 
 @app.post("/api/ai-report/{ticker}")
 def build_ai_report(ticker: str, request: AIReportRequest):
@@ -142,6 +155,6 @@ def build_ai_report(ticker: str, request: AIReportRequest):
         news_df = fetch_news_sentiment(ticker.upper())
         
         report = generate_ai_report(request.api_key, ticker.upper(), df, signal_info, news_df)
-        return {"report": report}
+        return sanitize({"report": report})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

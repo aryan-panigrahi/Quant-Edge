@@ -504,6 +504,11 @@ const POPULAR_TICKERS = [
   { symbol: 'UJJIVANSFB.NS', name: 'UJJIVANSFB' }
 ];
 
+const formatVal = (val, options = { minimumFractionDigits: 2 }) => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '—';
+  return Number(val).toLocaleString(undefined, options);
+};
+
 export default function App() {
   const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
@@ -651,7 +656,7 @@ export default function App() {
                     </span>
                   </div>
                   <div className="text-2xl font-light text-white font-mono tracking-tight">
-                    {marketData.nifty_price.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                    {formatVal(marketData.nifty_price)}
                   </div>
                   <div className="h-10 mt-2 -mx-1 opacity-80">
                     <ResponsiveContainer width="100%" height="100%">
@@ -720,7 +725,7 @@ export default function App() {
               </div>
               {stockData?.live && (
                 <span className="text-lg font-light text-white font-mono tracking-tighter">
-                  {stockData.live.price.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                  {formatVal(stockData.live.price)}
                 </span>
               )}
             </div>
@@ -728,13 +733,13 @@ export default function App() {
             {/* NEW TELEMETRY STRIP */}
             {stockData?.live && (
               <div className="flex items-center gap-4 text-[10px] font-mono text-gray-400 bg-background/50 border border-outline px-3 py-1 mt-1">
-                 <span className="flex items-center gap-1">Vol: <span className="text-gray-200">{(stockData.live.volume / 1000000).toFixed(2)}M</span></span>
+                 <span className="flex items-center gap-1">Vol: <span className="text-gray-200">{stockData.live.volume ? `${(stockData.live.volume / 1000000).toFixed(2)}M` : '—'}</span></span>
                  <span className="text-outline">|</span>
-                 <span className="flex items-center gap-1">Open: <span className="text-gray-200">{stockData.live.open.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></span>
+                 <span className="flex items-center gap-1">Open: <span className="text-gray-200">{formatVal(stockData.live.open)}</span></span>
                  <span className="text-outline">|</span>
-                 <span className="flex items-center gap-1">High: <span className="text-accent">{stockData.live.high.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></span>
+                 <span className="flex items-center gap-1">High: <span className="text-accent">{formatVal(stockData.live.high)}</span></span>
                  <span className="text-outline">|</span>
-                 <span className="flex items-center gap-1">Low: <span className="text-danger">{stockData.live.low.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></span>
+                 <span className="flex items-center gap-1">Low: <span className="text-danger">{formatVal(stockData.live.low)}</span></span>
               </div>
             )}
           </div>
