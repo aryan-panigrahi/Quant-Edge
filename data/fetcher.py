@@ -5,17 +5,9 @@ Includes caching, error handling, and graceful fallbacks.
 
 import yfinance as yf
 import pandas as pd
-import nltk
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from GoogleNews import GoogleNews
 
 import config as cfg
-
-# ── Ensure VADER lexicon is available ──────────────────────────
-try:
-    nltk.data.find("sentiment/vader_lexicon.zip")
-except LookupError:
-    nltk.download("vader_lexicon", quiet=True)
+from analysis.ai_analyst import score_headlines, sentiment_label
 
 
 # ── Market Data (Nifty 50 + VIX) ──────────────────────────────
@@ -111,49 +103,48 @@ def fetch_live_quote(ticker: str) -> dict | None:
 # ── News Sentiment ─────────────────────────────────────────────
 def fetch_news_sentiment(ticker: str) -> pd.DataFrame:
     """
-    Fetch news from Google News, score sentiment with VADER.
+    Fetch news from yfinance, score sentiment with FinBERT.
     Returns DataFrame with columns: Date, Title, Source, Score, Sentiment, Link
     """
     try:
         stock = yf.Ticker(ticker)
         news_items = stock.news
-        
+
         if not news_items:
             return pd.DataFrame()
 
-        analyzer = SentimentIntensityAnalyzer()
         rows = []
+        titles = []
+        metadata = []
 
         for item in news_items[:12]:
-            # Handle nested logic depending on yfinance version
             content = item.get("content", item)
-            
+
             title = content.get("title", "")
             if not title:
                 continue
 
-            link = content.get("clickThroughUrl", {}).get("url", content.get("link", "#"))
+            link     = content.get("clickThroughUrl", {}).get("url", content.get("link", "#"))
             date_str = content.get("pubDate", "Recent").split("T")[0]
-            
             provider = content.get("provider", {})
-            source = provider.get("displayName", content.get("publisher", "Market News"))
-            
-            score = analyzer.polarity_scores(title)["compound"]
+            source   = provider.get("displayName", content.get("publisher", "Market News"))
 
-            if score > 0.05:
-                label = "Positive 🟢"
-            elif score < -0.05:
-                label = "Negative 🔴"
-            else:
-                label = "Neutral ⚪"
+            titles.append(title)
+            metadata.append({"link": link, "date": date_str, "source": source})
 
+        # Batch-score all headlines with FinBERT
+        scored = score_headlines(titles)
+
+        for i, result in enumerate(scored):
+            # Compound score: positive conf - negative conf  (range ≈ -1 to +1)
+            compound = round(result["positive"] - result["negative"], 3)
             rows.append({
-                "Date": date_str,
-                "Title": title,
-                "Source": source,
-                "Score": round(score, 3),
-                "Sentiment": label,
-                "Link": link,
+                "Date":      metadata[i]["date"],
+                "Title":     titles[i],
+                "Source":    metadata[i]["source"],
+                "Score":     compound,
+                "Sentiment": sentiment_label(compound),
+                "Link":      metadata[i]["link"],
             })
 
         return pd.DataFrame(rows)

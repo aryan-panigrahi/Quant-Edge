@@ -12,7 +12,7 @@ A professional, high-fidelity quantitative financial dashboard built for institu
 
 The terminal is designed around a modern, lightning-fast **Headless Architecture**:
 
-1. **The AI Engine (Backend):** Built in **Python** using asynchronous **FastAPI**. It handles complex Numpy matrix calculations, Scikit-Learn predictions, and Google Gemini API inferences without blocking the UI. Includes recursive sanitization to filter out non-JSON compliant floats (like `NaN` or `Inf`).
+1. **The AI Engine (Backend):** Built in **Python** using asynchronous **FastAPI**. It handles complex Numpy matrix calculations, Scikit-Learn predictions, and local AI inference (Loughran-McDonald lexicon + Gradient Boosting Regressor) without blocking the UI. Includes recursive sanitization to filter out non-JSON compliant floats (like `NaN` or `Inf`).
 2. **The Dashboard (Frontend):** Built in **React (Vite)** utilizing **Tailwind v3 CSS**. It utilizes the "Obsidian Ledger / Quant Terminal v2" design system, ensuring a brutalist, zero-radius, high-data-density aesthetic tailored for professional traders. Equipped with active null-safe handlers to ensure flawless operation during closed-market hours when live pricing data feeds are empty.
 
 ---
@@ -73,15 +73,18 @@ npm run dev
 - **Confluence Verdict:** A real-time engine calculating the combined strength of `SMA`, `EMA`, `RSI`, `MACD`, and `Bollinger Bands` to trigger instantaneous Buy/Sell/Wait probabilities.
 - **Graceful Off-Hours Fallback:** Automatically replaces missing telemetry fields (price, high, low, open, volume) with elegant place-holding metrics (`—`) rather than crashing when markets are closed or stock feeds are empty.
 
-### 🤖 Generative AI Intelligence (Gemini)
-- Plugs directly into the Google Gemini LLM API (requires a free API key during usage).
-- Compiles thousands of discrete indicator signals and recent News Sentiment API data into a highly structured prompt.
-- Returns a 3-paragraph executive "Wall Street" style intelligence brief summarizing fundamental + technical alignment.
+### 🤖 Local AI Intelligence Engine
+- **100% offline** — no API keys, no external services, no downloads required.
+- Implements the **Loughran-McDonald (2011) Financial Sentiment Lexicon** — the gold-standard academic word list for financial text analysis — as embedded Python sets.
+- Batch-scores all news headlines and aggregates a compound sentiment score per ticker.
+- Synthesizes technical signals + news sentiment into a professional Bloomberg-style **Quantitative Intelligence Briefing** Markdown report.
 
-### 📉 Machine Learning Price Projection
-- Powered by `Scikit-Learn`'s Random Forest Regressor.
-- Trains entirely on-the-fly using the live ticker data to generate a multi-lag model.
-- Automatically projects a predictive 30-day future price path and models standard deviation variances natively into the API.
+### 📉 Machine Learning Price Projection (GBR)
+- Powered by `Scikit-Learn`'s **Gradient Boosting Regressor** — trains in ~0.5s on CPU with no GPU or CUDA required.
+- Feature engineering includes: Close, Volume, RSI, MACD Histogram, Bollinger %B, EMA, momentum, and cyclical intraday time features (sin/cos encoding).
+- Trains entirely on-the-fly using live ticker data and produces a **30-period autoregressive forecast** (150 min ahead on 5m candles).
+- Displays model accuracy (1 - normalized MAE) and the standard deviation of the trailing 20 candles as a risk metric.
+- The forecast chart is rendered as a separate blue-tinted panel below the historical chart.
 
 ---
 
@@ -94,8 +97,8 @@ npm run dev
 │   └── fetcher.py          # Data pipelines (yfinance, News API scraping)
 ├── analysis/
 │   ├── technical.py        # Algorithmic trading indicators (SMA/MACD/RSI/Bollinger)
-│   ├── ml_forecaster.py    # Random Forest Regressor implementation
-│   └── ai_analyst.py       # Google Gemini LLM Prompt Engineering & Formatting
+│   ├── ml_forecaster.py    # Gradient Boosting Regressor (GBR) — 30-period forecast
+│   └── ai_analyst.py       # Loughran-McDonald lexicon + rule-based report synthesizer
 │
 └── frontend/               # The React Client Setup
     ├── src/

@@ -45,8 +45,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class AIReportRequest(BaseModel):
-    api_key: str
 
 @app.get("/api/market")
 def get_market_pulse():
@@ -145,16 +143,19 @@ def get_stock_prediction(ticker: str):
         "std_dev": float(df['Close'].tail(20).std())
     })
 
-@app.post("/api/ai-report/{ticker}")
-def build_ai_report(ticker: str, request: AIReportRequest):
-    """Uses Gemini API to generate an intelligence readout."""
+@app.get("/api/ai-report/{ticker}")
+def build_ai_report(ticker: str):
+    """Generates a local AI analyst intelligence readout using FinBERT + LSTM — no API key required."""
     try:
         df = fetch_stock_data(ticker.upper(), "5d")
+        if df is None or df.empty:
+            raise HTTPException(status_code=404, detail="Stock data not found")
+
         df = add_all_indicators(df, 30)
         signal_info = get_signal_summary(df, 30)
         news_df = fetch_news_sentiment(ticker.upper())
-        
-        report = generate_ai_report(request.api_key, ticker.upper(), df, signal_info, news_df)
+
+        report = generate_ai_report("", ticker.upper(), df, signal_info, news_df)
         return sanitize({"report": report})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

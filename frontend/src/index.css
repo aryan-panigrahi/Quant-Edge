@@ -42,10 +42,10 @@
   }
 }
 
-/* Custom Minimal Scrollbar */
+/* Custom Minimal Scrollbar — global */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: #0a0e14;
@@ -56,3 +56,84 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #3c495b;
 }
+
+/* Utility class referenced in App.jsx panels */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1a2637 #0a0e14;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0a0e14;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1a2637;
+  border-radius: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3c495b;
+}
+
+/* Markdown report styles */
+.ai-report h2 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #bac7dd;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0.75rem 0 0.4rem;
+  border-bottom: 1px solid #3c495b;
+  padding-bottom: 0.25rem;
+}
+
+.ai-report h3 {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #9facc1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0.6rem 0 0.3rem;
+}
+
+.ai-report p {
+  font-size: 0.68rem;
+  color: #9facc1;
+  line-height: 1.6;
+  margin: 0.25rem 0;
+}
+
+.ai-report strong {
+  color: #d9e6fd;
+  font-weight: 600;
+}
+
+.ai-report em {
+  color: #6a768a;
+  font-style: italic;
+}
+
+.ai-report hr {
+  border: none;
+  border-top: 1px solid #3c495b;
+  margin: 0.6rem 0;
+}
+
+.ai-report ul, .ai-report ol {
+  padding-left: 1.1rem;
+  margin: 0.25rem 0;
+}
+
+.ai-report li {
+  font-size: 0.67rem;
+  color: #9facc1;
+  margin: 0.15rem 0;
+  line-height: 1.5;
+}
+
